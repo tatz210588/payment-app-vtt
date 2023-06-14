@@ -1,0 +1,23 @@
+{
+  "chargerInfo": {
+    "id": "chg1337",
+    "location": "123 Main Street",
+    "type": "AC/DC combo , 22 kW"
+  },
+  "pricing": {
+    "pricePerKWh": 0.5,
+    "currency": "USD"
+  },
+  "paymentOptions": [
+    {
+      "type": "apple_pay",
+      "label": "Apple Pay",
+      "color": "#007aff"
+    },
+    {
+      "type": "google_pay",
+      "label": "Google Pay",
+      "color": "#007aff"
+    }
+  ]
+}
