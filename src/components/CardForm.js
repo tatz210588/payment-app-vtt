@@ -1,9 +1,9 @@
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import React, { useState } from "react";
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import PaymentAuthorized from "./PaymentAuthorized";
 //import InvalidPaymentCard from "./InvalidPaymentCard";
-import { authorizePayment } from "../api";
 import { useNavigate } from "react-router-dom";
+import { authorizePayment } from "../api";
 
 const CardForm = ({
   onSuccessfulAuthorization,
@@ -80,7 +80,7 @@ const CardForm = ({
           errorMessage={errorMessage}
         />
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{marginInline: '20px'}}>
           <CardElement />
           {errorMessage && <p className="error-message">{errorMessage}</p>}
           <div className="button-container">
