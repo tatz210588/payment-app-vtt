@@ -1,8 +1,11 @@
 // PaymentAuthorized.js
-import React, { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import debounce from "lodash.debounce";
+import Lottie from "lottie-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import start from '../assets/68355-start.json';
+import charging from '../assets/78998-charging.json';
 import "../styles.css";
 
 const PaymentAuthorized = () => {
@@ -10,13 +13,15 @@ const PaymentAuthorized = () => {
   const location = useLocation();
   const paymentData = location.state?.paymentData;
   const errorMessage = location.state?.errorMessage;
-
+  // const errorMessage = false;
+  const [isCharging, setIsCharging] = useState(false);
   const [chargingSession, setChargingSession] = useState(null);
   const [chargingStatus, setChargingStatus] = useState(null);
   const [error, setError] = useState(null);
   const [chargingStopped, setChargingStopped] = useState(false); // Added chargingStopped state
 
   const startCharging = useCallback(debounce(async () => {
+    setIsCharging(true);
     try {
       const response = await axios.post('http://localhost:8080/api/start-charging-session', {
         sessionId: paymentData?.sessionId
@@ -82,29 +87,75 @@ const PaymentAuthorized = () => {
   }
 
   return (
-    <div className="container centered-content">
-      <h2 className="centered-text">Payment Authorized</h2>
-      <p className="centered-text">
-        Your payment has been successfully authorized. Session ID:{" "}
-        {paymentData?.sessionId}
-      </p>
-      <p className="centered-text">
-        Amount Reserved:{" "}
-        {paymentData?.amountReserved}
-      </p>
-      <button className="start-button" onClick={startCharging} disabled={!!chargingSession || chargingStopped}>Start Charging</button>
-      <button className="stop-button" onClick={stopCharging} disabled={!chargingSession}>Stop Charging</button>
-      {chargingStatus && (
-        <div className="status-card">
-          <div className="status-item"><span>Charging status:</span> {chargingStatus.isChargingComplete ? 'Complete' : 'Charging'}</div>
-          <div className="status-item"><span>Elapsed time:</span> {chargingStatus.elapsedTime}</div>
-          <div className="status-item"><span>Amount to capture:</span> {chargingStatus.amountToCapture}</div>
-          <div className="status-item"><span>Power usage:</span> {chargingStatus.powerUsage}</div>
-        </div>
-      )}
-      {error && <p className="error-message">Error: {error}</p>}
-    </div>
+    <>
+      <div className="container centered-content" style={styles.container}>
+        <h2 className="centered-text" style={styles.title}>Payment Authorized</h2>
+        <h3 className="centered-text" style={styles.paymentConfirm}>Your payment has been successfully authorized.</h3>
+        <h3 className="centered-text">
+          <p style={styles.infoHead}>Session ID:</p>
+          <p style={styles.infoDetails}>{paymentData?.sessionId}</p>
+        </h3>
+        <h3 className="centered-text">
+          <p style={styles.infoHead}>Amount Reserved:</p>
+          <p style={styles.infoDetails}>{paymentData?.amountReserved}</p>
+        </h3>
+        {/* <button className="start-button" onClick={startCharging} disabled={!!chargingSession || chargingStopped}>Start Charging</button> */}
+        {!isCharging ? (
+          <div className="start-button">
+            <Lottie animationData={start} onClick={startCharging} disabled={!!chargingSession || chargingStopped} style={{cursor: 'pointer'}} />
+          </div>
+        ) : (
+          <div className="charge-button">
+            <Lottie animationData={charging} disabled={!!chargingSession || chargingStopped} />
+          </div>
+        )}
+        {isCharging && (<button className="stop-button" style={!isCharging ? {marginTop: '100px'} : {}} onClick={stopCharging} disabled={!chargingSession}><p>Stop</p> <p>Charging</p></button>)}
+        {chargingStatus && (
+          <div className="status-card">
+            <div className="status-item"><span>Charging status:</span> {chargingStatus.isChargingComplete ? 'Complete' : 'Charging'}</div>
+            <div className="status-item"><span>Elapsed time:</span> {chargingStatus.elapsedTime}</div>
+            <div className="status-item"><span>Amount to capture:</span> {chargingStatus.amountToCapture}</div>
+            <div className="status-item"><span>Power usage:</span> {chargingStatus.powerUsage}</div>
+          </div>
+        )}
+        {error && <p className="error-message">Error: {error}</p>}
+      </div>
+      {/* <div className="checkmark" style={styles.checkmark}>
+        <Lottie animationData={thankYou} loop={true} />
+      </div> */}
+    </>
   );
+};
+
+const styles = {
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginBottom: 10,
+    justifyContent: 'center'
+  },
+  container: {
+    // boxShadow: '4px 4px 10px -4px rgba(0,0,0,0.75)',
+    background: 'none',
+    position: 'relative'
+  },
+  paymentConfirm: {
+    justifyContent: 'center',
+    fontSize: '12px'
+  },
+  checkmark: {
+    maxWidth: '200px',
+    margin: '0 auto'
+  },
+  infoHead: {
+    fontWeight: 'bold',
+    marginLeft: '10px'
+  },
+  infoDetails: {
+    marginRight: '10px',
+    fontWeight: 'normal'
+  }
 };
 
 export default PaymentAuthorized;
